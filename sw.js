@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v3';
 const CACHE = 'subtext-' + VERSION;
 
 const PRECACHE = [
@@ -44,6 +44,22 @@ self.addEventListener('activate', event => {
   );
 });
 
+function cachePut(request, response) {
+  if (response && response.status === 200 && response.type !== 'error') {
+    const clone = response.clone();
+    caches.open(CACHE).then(cache => cache.put(request, clone));
+  }
+  return response;
+}
+
+// Code assets (the app shell, JS, CSS) are served network-first so a redeploy shows up
+// on the next reload while online — no VERSION bump or cache-clearing dance needed. When
+// offline, they fall back to cache (and navigations fall back to the cached index.html).
+function isCodeAsset(url, request) {
+  return request.mode === 'navigate' ||
+    /\.(?:js|css|html|webmanifest)$/.test(url.pathname);
+}
+
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
@@ -54,30 +70,20 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  if (isCodeAsset(url, event.request)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => cachePut(event.request, response))
+        .catch(() => caches.match(event.request).then(hit =>
+          hit || (event.request.mode === 'navigate' ? caches.match('./index.html') : undefined)))
+    );
+    return;
+  }
+
+  // Everything else (fonts, icons, static data) is cache-first: instant and fully
+  // offline-capable, and these rarely change.
   event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) {
-        return response;
-      }
-
-      return fetch(event.request).then(response => {
-        // Only cache successful responses
-        if (!response || response.status !== 200 || response.type === 'error') {
-          return response;
-        }
-
-        const responseClone = response.clone();
-        caches.open(CACHE).then(cache => {
-          cache.put(event.request, responseClone);
-        });
-
-        return response;
-      }).catch(() => {
-        // Network failure: fall back to cached index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+    caches.match(event.request).then(hit =>
+      hit || fetch(event.request).then(response => cachePut(event.request, response)))
   );
 });

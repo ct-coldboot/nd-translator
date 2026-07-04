@@ -1,2 +1,8 @@
 __pycache__/
 .claude/settings.local.json
+
+# Server-specific deployment (systemd units for this box only)
+deploy/
+
+# Local reference material, not part of the app
+references/
