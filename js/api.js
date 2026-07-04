@@ -68,7 +68,7 @@ async function postChat(settings, messages, extraParams) {
           model: settings.model,
           messages,
           temperature: 0.5,
-          max_tokens: 1024,
+          max_tokens: 1536,
           // Thinking OFF for the translator: the system prompt already encodes the full
           // reasoning framework, so extended CoT costs ~30s/request and buys no measurable
           // accuracy here (A/B'd with tools/test-harness.py). Qwen3.x honours

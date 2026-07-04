@@ -81,6 +81,22 @@
           </div>
         </section>
 
+        <!-- Second read: private to the user, shown only when the model spotted an
+             unhelpful thought pattern in the wording. Never affects the translation. -->
+        <section class="shell card foryou reveal hidden" id="reframeCard" style="animation-delay:.12s">
+          <div class="core">
+            <p class="card-tag">For you · a second read</p>
+            <p class="reframe-validation" id="reframeValidation"></p>
+            <p class="reframe-text" id="reframeText"></p>
+            <p class="reframe-pattern">Pattern this might be: <span id="reframePattern"></span></p>
+            <div class="row">
+              <button class="pill-btn" id="reframeHelpsBtn">That helps</button>
+              <button class="pill-btn ghost" id="reframeSkipBtn">Not this time</button>
+            </div>
+            <p class="reframe-note">Just for you — it never changes what gets sent.</p>
+          </div>
+        </section>
+
         <details class="shell card reveal" style="animation-delay:.16s">
           <summary>What changed, and why</summary>
           <div class="core explain">

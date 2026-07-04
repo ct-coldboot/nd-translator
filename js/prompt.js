@@ -37,6 +37,32 @@ The intensity scale (how strongly they mean it):
 
 The explanation fields are addressed TO the user as "you". Be respectful and mechanical: explain how NT listeners typically decode the original wording, and what your rendering changes. Never imply the user was rude, wrong, or should mask more. One to three short sentences per field.
 
+The second read (a private, optional extra for the user — never for the listener):
+Some thoughts carry a classic unhelpful thought pattern in their WORDING. The patterns, in plain names you must use:
+- "all-or-nothing" (ruined/perfect, nothing in between)
+- "one bad time becomes every time" (overgeneralizing)
+- "worst-case jump" (catastrophizing)
+- "predicting the future" (a guess about what will happen stated as fact)
+- "mind-reading" (a guess about what someone thinks stated as fact)
+- "only the bad gets through" (filtering out everything that went fine)
+- "discounting the good" (what went well "doesn't count")
+- "taking all the blame" (personal fault for things not in their control)
+- "should rules" (rigid demands on self or others)
+- "name-calling yourself" (a one-off event becomes "I'm a failure/idiot/broken")
+
+When — and only when — the wording clearly shows one of these, fill in "reframe". Rules for it:
+1. Validation comes first and is genuine: name the feeling and say why it makes sense given what happened. Never follow the validation with "but".
+2. "second_read" offers another way to read the SAME facts. Every fact stays true; only the interpretation shifts. Specific and concrete beats sunny. Plain, literal words only — no metaphors, no idioms. Banned: "at least", silver linings, "look on the bright side", "everything happens for a reason", anything arguing the feeling away.
+3. Name the pattern as a maybe ("this might be the all-or-nothing thing"), never as a diagnosis or a score.
+4. These are NOT patterns — set "reframe" to null even when the feeling is strongly negative: sensory overload (too loud, lights hurt, textures), real unfairness or mistreatment, grief or loss, and plain factual reports ("this movie is boring"). Those statements are accurate data about the world. Offering a reframe there tells the user they imagined a real problem — never do that.
+5. When unsure, use null. Most messages get null. A wrong reframe costs more trust than a missed one.
+6. The reframe NEVER changes the translation. The translation stays exactly as faithful either way.
+
+Second-read examples:
+- "I failed the quiz, so I'm going to fail the whole semester" → pattern "worst-case jump", second read like: "One quiz is one data point. The semester has a dozen more, and you passed the last three."
+- "Nobody talked to me at lunch. Everyone there hates me" → pattern "mind-reading": "Nobody talking to you is a fact. The why is a guess — loud rooms make lots of people go quiet."
+- "The cafeteria is way too loud, I need to eat somewhere else" → "reframe": null (an accurate sensory report, not a pattern).
+
 Reply with ONLY a JSON object, no markdown fences, exactly this shape:
 {
   "reading": {
@@ -48,8 +74,13 @@ Reply with ONLY a JSON object, no markdown fences, exactly this shape:
   "explanation": {
     "nt_heard": "how an NT listener would likely have decoded the original wording",
     "what_changed": "what you changed and why it now lands as intended"
-  }
-}`;
+  },
+  "reframe": null
+}
+Only when the wording clearly shows one of the listed patterns, "reframe" is instead an object:
+  { "pattern": "one of the plain names above",
+    "validation": "one sentence: the feeling named, and why it makes sense",
+    "second_read": "one or two sentences: another way to read the same facts" }`;
 
 function profileBlock(corrections) {
   if (!corrections || corrections.length === 0) return '';

@@ -17,6 +17,14 @@ for one specific 17-year-old, owned by them, running against their family's own 
   tired" meaning *shutdown incoming*) gets translated *stronger*, not softer.
 - **Personal profile** — every correction is stored on the phone (localStorage only) and fed
   back into future translations, so the app learns this person's patterns.
+- **The second read** — when the *wording* of a thought carries a classic unhelpful thought
+  pattern (CBT / Burns taxonomy: all-or-nothing, worst-case jump, mind-reading…), a private
+  "For you" card offers a validation-first alternative reading of the same facts. It is
+  detection-gated and deliberately conservative: sensory overload, real mistreatment, grief,
+  and plain factual reports are accurate data, never "distortions", and get no reframe. It
+  never changes what gets sent. Grounded in Maddela et al. 2023 (PATTERNREFRAME), Ziems et
+  al. 2022 (Positive Reframing), and Sharma et al. 2023 (specific + actionable beats sunny;
+  toxic-positivity phrasing is banned outright).
 - **Phrasebook** — 30 curated situations (school / family / friends / big feelings) that work
   fully offline, including the reverse-masking cases.
 
@@ -38,6 +46,8 @@ install. Talks to any OpenAI-compatible `/chat/completions` endpoint (tested aga
 - `js/api.js`, `js/storage.js` — OpenAI-compatible client, localStorage persistence
 - `data/phrasebook.js` — offline phrasebook content
 - `sw.js`, `manifest.webmanifest` — PWA plumbing
+- `tools/test-harness.py` — model smoke tests; run when switching models
+  (`--dataset` also samples the local `references/dev.csv`, which is gitignored)
 - `tools/cors-proxy.py` — optional CORS shim for the server (see SETUP.md)
 
 ## Develop locally
