@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="Say it your way. Send it their way.">
+  <title>Subtext</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wordmark">Sub<em>text</em></div>
+    <div class="top-actions">
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">offline</span></div>
+      <button class="iconbtn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.4.9a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4L9.6 5a7.6 7.6 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.4-.9a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.4.9 2-3.4Z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ TRANSLATE ============ -->
+    <section class="view" id="viewTranslate">
+      <div class="hero">
+        <span class="eyebrow">Private · On your terms</span>
+        <h1>Say it like <em>you</em>.<br>Send it like them.</h1>
+      </div>
+
+      <div class="shell">
+        <div class="core">
+          <textarea id="input" placeholder="What do you want to say?" autocomplete="off"></textarea>
+          <div class="chips" id="audienceChips" role="radiogroup" aria-label="Who is it for"></div>
+        </div>
+      </div>
+
+      <button class="cta" id="translateBtn">
+        <span id="ctaText">Translate</span><span class="cta-orb" id="ctaOrb">&rarr;</span>
+      </button>
+
+      <div class="notice hidden" id="offlineNote">
+        The server is asleep, so live translate is off.
+        The <button class="linklike" id="gotoPhrasebook">phrasebook</button> still works —
+        and everything here stays on your phone either way.
+      </div>
+      <div class="notice error hidden" id="errorBox"></div>
+
+      <div class="results hidden" id="results">
+        <section class="shell card reveal">
+          <div class="core">
+            <p class="card-tag">How I read it</p>
+            <p class="reading-meaning" id="readingMeaning"></p>
+            <p class="reading-feeling">Feeling underneath: <span id="readingFeeling"></span></p>
+            <div class="dial">
+              <div class="dial-head">
+                <label for="dial">How strongly you mean it</label>
+                <span class="dial-label" id="dialLabel"></span>
+              </div>
+              <input type="range" id="dial" min="1" max="5" step="1" value="3" aria-label="Intensity">
+              <p class="dial-hint" id="dialHint"></p>
+            </div>
+            <button class="pill-btn wide hidden" id="retranslateBtn">That's my real strength — retranslate</button>
+          </div>
+        </section>
+
+        <section class="shell card accent reveal" style="animation-delay:.08s">
+          <div class="core">
+            <p class="card-tag">For them</p>
+            <p class="translation" id="translationText"></p>
+            <div class="row">
+              <button class="pill-btn" id="copyBtn">Copy</button>
+              <button class="pill-btn ghost" id="againBtn">Another way</button>
+            </div>
+          </div>
+        </section>
+
+        <details class="shell card reveal" style="animation-delay:.16s">
+          <summary>What changed, and why</summary>
+          <div class="core explain">
+            <p class="card-tag">How it probably lands as-is</p>
+            <p id="ntHeard"></p>
+            <p class="card-tag">What the translation does</p>
+            <p id="whatChanged"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ PHRASEBOOK ============ -->
+    <section class="view hidden" id="viewPhrasebook">
+      <div class="hero">
+        <span class="eyebrow">Works offline · Always</span>
+        <h1>The <em>phrasebook</em></h1>
+      </div>
+      <input class="search" id="pbSearch" type="search" placeholder="Search situations&hellip;" autocomplete="off">
+      <div class="chips" id="pbChips"></div>
+      <div class="results" id="pbList"></div>
+    </section>
+  </main>
+
+  <nav class="dock" aria-label="Views">
+    <button class="dock-btn active" data-view="translate">Translate</button>
+    <button class="dock-btn" data-view="phrasebook">Phrasebook</button>
+  </nav>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-label="Settings">
+    <h2>Settings</h2>
+    <div class="field">
+      <label for="setBaseUrl">Server address</label>
+      <input id="setBaseUrl" type="url" placeholder="https://machine.tailnet.ts.net/api/v1" autocomplete="off" spellcheck="false">
+      <p class="hint">The Tailscale HTTPS address, ending in /api/v1</p>
+    </div>
+    <div class="field">
+      <label for="setModel">Model</label>
+      <input id="setModel" type="text" list="modelList" placeholder="pick or type a model name" autocomplete="off" spellcheck="false">
+      <datalist id="modelList"></datalist>
+    </div>
+    <div class="field">
+      <label for="setApiKey">API key <span style="text-transform:none;letter-spacing:0">(only if the server wants one)</span></label>
+      <input id="setApiKey" type="password" autocomplete="off">
+    </div>
+    <button class="pill-btn" id="testBtn">Test connection</button>
+    <p class="test-result" id="testResult"></p>
+    <hr class="divider">
+    <div class="profile-row">
+      <p id="profileCount"></p>
+      <button class="pill-btn ghost" id="clearProfileBtn">Clear</button>
+    </div>
+    <p class="hint" style="margin-top:.5rem">Your corrections teach the translator your patterns. They never leave this phone except inside translation requests to your own server.</p>
+    <p class="version">Subtext v1</p>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
