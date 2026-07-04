@@ -1,5 +1,6 @@
 const SETTINGS_KEY = 'subtext.settings.v1';
 const PROFILE_KEY = 'subtext.profile.v1';
+const REFRAME_KEY = 'subtext.reframes.v1';
 
 // On the family LLM box itself, the app is served from localhost and talks to the
 // local Lemonade server directly (no Tailscale, no config needed). Anywhere else
@@ -65,4 +66,13 @@ export function getRecentCorrections(n = 8) {
 
 export function clearProfile() {
   safeSaveJSON(PROFILE_KEY, DEFAULT_PROFILE);
+  safeSaveJSON(REFRAME_KEY, []);
+}
+
+// "That helps" / "Not this time" taps on the second-read card. Stays on-device,
+// same as corrections; kept so a future prompt can learn which patterns land.
+export function addReframeFeedback(entry) {
+  const log = safeGetJSON(REFRAME_KEY, []);
+  log.push(entry);
+  safeSaveJSON(REFRAME_KEY, log.slice(-25));
 }

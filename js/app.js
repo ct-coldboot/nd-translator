@@ -1,4 +1,4 @@
-import { getSettings, saveSettings, getProfile, addCorrection, getRecentCorrections, clearProfile } from './storage.js';
+import { getSettings, saveSettings, getProfile, addCorrection, getRecentCorrections, clearProfile, addReframeFeedback } from './storage.js';
 import { pingServer, chatJSON, normalizeBaseUrl } from './api.js';
 import { buildMessages, buildCorrectionMessages, buildAlternativeMessages, INTENSITY_LABELS, AUDIENCES } from './prompt.js';
 import { PHRASEBOOK, CATEGORIES } from '../data/phrasebook.js';
@@ -115,6 +115,7 @@ function render(result) {
   $('translationText').textContent = result.translation;
   $('ntHeard').textContent = result.explanation?.nt_heard ?? '';
   $('whatChanged').textContent = result.explanation?.what_changed ?? '';
+  renderReframe(result.reframe);
   $('dial').value = intensity;
   updateDial();
   $('results').classList.remove('hidden');
@@ -128,6 +129,32 @@ function render(result) {
 
 function clampIntensity(n) {
   return Math.min(5, Math.max(1, Math.round(Number(n) || 3)));
+}
+
+/* ---------- second read (private reframe) ---------- */
+// Shown only when the model spotted an unhelpful thought pattern in the wording;
+// most translations get reframe: null and the card stays hidden.
+function renderReframe(reframe) {
+  const ok = reframe && typeof reframe === 'object' && reframe.second_read;
+  $('reframeCard').classList.toggle('hidden', !ok);
+  if (!ok) return;
+  $('reframeValidation').textContent = reframe.validation ?? '';
+  $('reframeText').textContent = reframe.second_read;
+  $('reframePattern').textContent = reframe.pattern ?? '—';
+}
+
+function reframeFeedback(helped) {
+  const r = state.lastResult?.reframe;
+  if (r) {
+    addReframeFeedback({
+      original: currentOriginal(state.messages),
+      pattern: r.pattern ?? '',
+      secondRead: r.second_read ?? '',
+      helped,
+      ts: Date.now(),
+    });
+  }
+  $('reframeCard').classList.add('hidden');
 }
 
 /* ---------- intensity dial ---------- */
@@ -263,6 +290,8 @@ function init() {
   $('retranslateBtn').addEventListener('click', retranslate);
   $('againBtn').addEventListener('click', anotherWay);
   $('copyBtn').addEventListener('click', copyTranslation);
+  $('reframeHelpsBtn').addEventListener('click', () => reframeFeedback(true));
+  $('reframeSkipBtn').addEventListener('click', () => reframeFeedback(false));
   $('dial').addEventListener('input', updateDial);
 
   $('audienceChips').addEventListener('click', (e) => {
