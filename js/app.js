@@ -20,7 +20,7 @@ async function refreshStatus() {
   if (!settings.baseUrl) return setOnline(false);
   const res = await pingServer(settings);
   setOnline(res.ok);
-  if (res.ok) fillModelList(res.models);
+  if (res.ok) renderModelChips(res.models);
 }
 
 function setOnline(ok) {
@@ -30,8 +30,11 @@ function setOnline(ok) {
   $('offlineNote').classList.toggle('hidden', ok);
 }
 
-function fillModelList(models) {
-  $('modelList').innerHTML = models.map((m) => `<option value="${m}"></option>`).join('');
+function renderModelChips(models) {
+  const current = $('setModel').value.trim();
+  $('modelChips').innerHTML = models.map(
+    (m) => `<button type="button" class="chip${m === current ? ' active' : ''}" data-model="${m}">${m}</button>`
+  ).join('');
 }
 
 /* ---------- translate flow ---------- */
@@ -231,9 +234,9 @@ async function testConnection() {
   out.className = 'test-result';
   const res = await pingServer(getSettings());
   if (res.ok) {
-    fillModelList(res.models);
+    renderModelChips(res.models);
     out.textContent = res.models.length
-      ? `Connected — ${res.models.length} model${res.models.length > 1 ? 's' : ''} available (tap the model box to pick).`
+      ? `Connected — ${res.models.length} model${res.models.length > 1 ? 's' : ''} available below.`
       : 'Connected, but no models are loaded on the server.';
     out.className = 'test-result ok';
   } else {
@@ -277,6 +280,14 @@ function init() {
     renderPhrasebook();
   });
   $('pbSearch').addEventListener('input', renderPhrasebook);
+
+  $('modelChips').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-model]');
+    if (!btn) return;
+    $('setModel').value = btn.dataset.model;
+    persistSettings();
+    $('modelChips').querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === btn));
+  });
 
   document.querySelector('.dock').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-view]');
