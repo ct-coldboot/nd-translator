@@ -1,7 +1,7 @@
 """Tiny CORS-adding reverse proxy for Lemonade Server.
 
 Only needed if Lemonade itself doesn't send Access-Control-Allow-Origin headers
-(see SETUP.md, step 4). Listens on :8001 and forwards everything to :8000.
+(see SETUP.md, step 4). Listens on :8001 and forwards everything to :13305.
 
 Usage:  python tools/cors-proxy.py
 Then:   tailscale serve --bg http://localhost:8001
@@ -10,7 +10,7 @@ import http.server
 import urllib.request
 import urllib.error
 
-UPSTREAM = "http://localhost:8000"
+UPSTREAM = "http://localhost:13305"
 PORT = 8001
 
 CORS_HEADERS = {

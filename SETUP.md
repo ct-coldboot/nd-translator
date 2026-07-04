@@ -7,7 +7,7 @@ from zero to both phones translating.
 ## The shape of the setup
 
 ```
-[Teen's phone] --Tailscale VPN--> [Strix Halo: tailscale serve (HTTPS :443) --> Lemonade (:8000)]
+[Teen's phone] --Tailscale VPN--> [Strix Halo: tailscale serve (HTTPS :443) --> Lemonade (:13305)]
      |
      '-- Subtext app itself is served from GitHub Pages (works even when the server is off)
 ```
@@ -42,10 +42,10 @@ a plain-HTTP address ("mixed content"). `tailscale serve` fixes that with a real
 
 ## 4. Front Lemonade with HTTPS
 
-Start Lemonade Server as usual (it listens on `http://localhost:8000`). Then, on the server:
+Start Lemonade Server as usual (it listens on `http://localhost:13305`). Then, on the server:
 
 ```
-tailscale serve --bg http://localhost:8000
+tailscale serve --bg http://localhost:13305
 ```
 
 - `--bg` keeps it running in the background and re-applies after reboots.
@@ -76,7 +76,7 @@ curl -si https://<machine>.<tailnet>.ts.net/api/v1/models -H "Origin: https://ct
   `tailscale serve` at it:
 
   ```
-  python tools/cors-proxy.py            # listens on :8001, forwards to :8000, adds CORS
+  python tools/cors-proxy.py            # listens on :8001, forwards to :13305, adds CORS
   tailscale serve --bg http://localhost:8001
   ```
 

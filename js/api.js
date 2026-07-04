@@ -68,7 +68,12 @@ async function postChat(settings, messages, extraParams) {
           model: settings.model,
           messages,
           temperature: 0.5,
-          max_tokens: 700,
+          max_tokens: 1024,
+          // Thinking OFF for the translator: the system prompt already encodes the full
+          // reasoning framework, so extended CoT costs ~30s/request and buys no measurable
+          // accuracy here (A/B'd with tools/test-harness.py). Qwen3.x honours
+          // enable_thinking, NOT reasoning_effort. With it off, content is the JSON directly.
+          chat_template_kwargs: { enable_thinking: false },
           stream: false,
           ...extraParams
         })
@@ -83,12 +88,10 @@ async function postChat(settings, messages, extraParams) {
 }
 
 export async function chatJSON(settings, messages) {
-  // reasoning_effort 'none' stops hybrid models (qwen3 family on Ollama) from
-  // spending the whole token budget thinking; retry bare for servers that 4xx on it
-  let response = await postChat(settings, messages, { reasoning_effort: 'none' });
-  if (!response.ok && response.status >= 400 && response.status < 500) {
-    response = await postChat(settings, messages, {});
-  }
+  // Thinking is disabled at the request level (see postChat) — ~10x faster and accuracy
+  // holds for this task, since the system prompt carries the reasoning framework. content
+  // comes back as the JSON object directly. tools/test-harness.py guards this path.
+  const response = await postChat(settings, messages, {});
 
   if (!response.ok) {
     const error = new Error(`Server error (${response.status})`);

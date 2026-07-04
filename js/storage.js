@@ -1,9 +1,15 @@
 const SETTINGS_KEY = 'subtext.settings.v1';
 const PROFILE_KEY = 'subtext.profile.v1';
 
+// On the family LLM box itself, the app is served from localhost and talks to the
+// local Lemonade server directly (no Tailscale, no config needed). Anywhere else
+// (e.g. GitHub Pages on the teen's phone) the server address is entered by hand in
+// Settings, so the defaults there stay empty.
+const ON_SERVER = ['localhost', '127.0.0.1'].includes(location.hostname);
+
 const DEFAULT_SETTINGS = {
-  baseUrl: '',
-  model: '',
+  baseUrl: ON_SERVER ? 'http://localhost:13305/api/v1' : '',
+  model: ON_SERVER ? 'Qwen3.6-35B-A3B-MTP-GGUF' : '',
   apiKey: ''
 };
 
