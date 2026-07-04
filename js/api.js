@@ -53,12 +53,10 @@ export async function pingServer(settings) {
   }
 }
 
-export async function chatJSON(settings, messages) {
+async function postChat(settings, messages, extraParams) {
   const base = normalizeBaseUrl(settings.baseUrl);
-
-  let response;
   try {
-    response = await fetchWithTimeout(
+    return await fetchWithTimeout(
       `${base}/chat/completions`,
       {
         method: 'POST',
@@ -71,15 +69,25 @@ export async function chatJSON(settings, messages) {
           messages,
           temperature: 0.5,
           max_tokens: 700,
-          stream: false
+          stream: false,
+          ...extraParams
         })
       },
       90000
     );
-  } catch (error) {
+  } catch {
     const err = new Error('Could not reach the server');
     err.kind = 'network';
     throw err;
+  }
+}
+
+export async function chatJSON(settings, messages) {
+  // reasoning_effort 'none' stops hybrid models (qwen3 family on Ollama) from
+  // spending the whole token budget thinking; retry bare for servers that 4xx on it
+  let response = await postChat(settings, messages, { reasoning_effort: 'none' });
+  if (!response.ok && response.status >= 400 && response.status < 500) {
+    response = await postChat(settings, messages, {});
   }
 
   if (!response.ok) {
