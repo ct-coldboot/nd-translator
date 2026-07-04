@@ -115,8 +115,14 @@ export async function chatJSON(settings, messages) {
   try {
     return JSON.parse(jsonStr);
   } catch {
-    const error = new Error('The model returned something unreadable');
-    error.kind = 'parse';
-    throw error;
+    // small models sometimes emit typographic quotes as JSON delimiters
+    const repaired = jsonStr.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+    try {
+      return JSON.parse(repaired);
+    } catch {
+      const error = new Error('The model returned something unreadable');
+      error.kind = 'parse';
+      throw error;
+    }
   }
 }
